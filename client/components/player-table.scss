@@ -1,0 +1,27 @@
+.table {
+    th {
+      background-color: black;
+      font-weight: bold;
+      color: white;
+      padding: 0.5rem;
+    }
+  
+    td {
+      padding: 0.5rem;
+      background-color: #f2f2f2;
+    }
+  
+    .id-link {
+      color: blue;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+  
+    .id-link:hover {
+      color: darkblue;
+    }
+  
+    .background {
+      background-color: #f9f9f9;
+    }
+  }

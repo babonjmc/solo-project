@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-// import axios from 'axios';
+import './App.scss'
 
 import PlayerTable from './player-table.jsx';
 import PlayerCard from './player-card.jsx';
@@ -28,7 +28,8 @@ function App() {
   const [selectedPlayer, setSelectedPlayer] = useState(nbaPlayer);
   const [loading, setLoading] = useState(true);
   const [showAlert, setShowAlert] = useState(false);
-  const [showCard, setShowCard] = useState(false)
+  const [showCard, setShowCard] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
 
   const getAllPlayers = useCallback((page, players) => {
     if (page) {
@@ -60,6 +61,7 @@ function App() {
       const lowercaseName = name.toLowerCase();
       setFilteredPlayers(allPlayers.filter(player => player && getPlayerFullName(player).toLowerCase().includes(lowercaseName)));
     }
+    setSubmitted(true);
   }
 
   function handleChange(event) {
@@ -128,17 +130,23 @@ function App() {
   }, [filteredPlayers]);
   
   return (
-    <article>
-      <section className="center search-form">
-        <div className="jumbotron">
-          {showCard && <PlayerCard className="card" player={selectedPlayer}></PlayerCard>}
-        </div>
-        <SearchBar name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchBar>
-      </section>
-      <section>
-        {showAlert ? <Alerts setShow={setShowAlert}></Alerts> : null}
-        <PlayerTable players={filteredPlayers} handlePlayerClick={handlePlayerClick}></PlayerTable>
-      </section>
+    <article className='app'>
+  <div className="center-container">
+    <div className="center-content">
+      <div className="jumbotron">
+        {showCard && <PlayerCard className="card" player={selectedPlayer}></PlayerCard>}
+      </div>
+      <SearchBar name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchBar>
+    </div>
+  </div>
+  <div className="center-container">
+  {submitted && name !== '' && filteredPlayers.length > 0 ? (
+          <PlayerTable players={filteredPlayers} handlePlayerClick={handlePlayerClick}></PlayerTable>
+        ) : null}
+  </div>
+  <div className="center-container">
+    {showAlert ? <Alerts setShow={setShowAlert}></Alerts> : null}
+  </div>
     </article>
   );
 }

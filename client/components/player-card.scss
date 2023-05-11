@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Righteous&family=Shadows+Into+Light&display=swap');
+
+.card {
+    transform-style: preserve-3d;
+    background-image: url(https://st.depositphotos.com/1269924/4085/i/600/depositphotos_40855097-stock-photo-basketball-court-with-ball-and.jpg);
+    background-position: bottom left;
+    width: 100%;
+    transition: all 0.5s ease-in-out;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  
+    .card-title {
+      font-family: 'Permanent Marker', cursive;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: 900;
+    }
+  
+    .card-subtitle {
+      font-family: 'Shadows Into Light', cursive;
+      color: white;
+      font-weight: 800;
+      align-self: center;
+    }
+  
+    .card-text {
+      font-family: 'Righteous', cursive;
+      margin-top: 1rem;
+      color: white;
+      text-align: left;
+    }
+
+    &:hover {
+      background-position: 80% 20%;
+      transform:rotate3d(0.5, 1,0,30deg)
+    }
+  }
+

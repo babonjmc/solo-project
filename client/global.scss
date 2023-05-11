@@ -1,0 +1,27 @@
+body {
+    background-image: url(https://images.squarespace-cdn.com/content/v1/57d4b0456a49635bed4dae6c/1621179897307-KU7RQBRQE2BQD40B41ZY/HOF_Kobe_v2.gif?format=500w);
+    background-repeat: no-repeat;
+    background-size: cover;
+    
+  }
+
+  .app {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+  
+  .center-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .center-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
