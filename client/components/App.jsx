@@ -1,38 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import './App.css';
-import axios from 'axios';
+// import axios from 'axios';
 
-import PlayerTable from './components/player-table';
-import PlayerCard from './components/player-card';
-// import Alert from './components/alert';
-import SearchBar from './components/search-bar';
-import { Jumbotron } from 'react-bootstrap';
+import PlayerTable from './player-table.jsx';
+import PlayerCard from './player-card.jsx';
+import Alerts from './alert.jsx';
+import SearchBar from './search-bar.jsx';
 
 function App() {
-  const lebron = {
-    id: 237,
-    first_name: 'LeBron',
-    last_name: 'James',
-    team: { abbreviation: 'LAL', full_name: 'Los Angeles Lakers' },
+  const nbaPlayer = {
+    id: null,
+    first_name: '',
+    last_name: '',
+    team: { abbreviation: '', full_name: '' },
     stats: {
-      averageAssistsPerGame: 7.38,
-      averageBlocksPerGame: 0.65,
-      averagePointsPerGame: 26.97,
+      averagePointsPerSeason: null,
+      averageAssistsPerSeason: null,
+      averageReboundsPerSeason: null,
+      averageStealsPerSeason: null,
+      averageBlocksPerSeason: null,
+      
     },
   };
 
-  const [name, setName] = useState('LeBron James');
+  const [name, setName] = useState('');
   const [allPlayers, setAllPlayers] = useState([]);
-  const [filteredPlayers, setFilteredPlayers] = useState([lebron]);
-  const [selectedPlayer, setSelectedPlayer] = useState(lebron);
+  const [filteredPlayers, setFilteredPlayers] = useState([nbaPlayer]);
+  const [selectedPlayer, setSelectedPlayer] = useState(nbaPlayer);
   const [loading, setLoading] = useState(true);
-  // const [showAlert, setShowAlert] = useState(false);
+  const [showAlert, setShowAlert] = useState(false);
+  const [showCard, setShowCard] = useState(false)
 
   const getAllPlayers = useCallback((page, players) => {
     if (page) {
-      return axios
-        .get(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
-        .then((response) => response.data)
+      return fetch(`https://www.balldontlie.io/api/v1/players?per_page=100&page=${page}`)
+        .then((response) => response.json())
         .catch(() => new Promise((r) => setTimeout(r, 25000)).then(() => getAllPlayers(page, players)))
         .then((result) => {
           return getAllPlayers(result.meta?.next_page, players.concat(result.data));
@@ -46,10 +47,19 @@ function App() {
       .finally(() => setLoading(false));
   }, [getAllPlayers]);
 
+  function getPlayerFullName(player) {
+    const { first_name, last_name } = player;
+    return `${first_name} ${last_name}`;
+  }
+
   async function handleSubmit(event) {
     event.preventDefault();
-    if (loading) await getPlayers(name);
-    else setFilteredPlayers(allPlayers.filter((player) => `${player.first_name} ${player.last_name}`.includes(name)));
+    if (loading) {
+      await getPlayers(name);
+    } else {
+      const lowercaseName = name.toLowerCase();
+      setFilteredPlayers(allPlayers.filter(player => player && getPlayerFullName(player).toLowerCase().includes(lowercaseName)));
+    }
   }
 
   function handleChange(event) {
@@ -58,24 +68,17 @@ function App() {
 
   async function getPlayers(name) {
     const url = `https://www.balldontlie.io/api/v1/players?per_page=100&search=${name}`;
-    const result = await fetchData(url);
-    setFilteredPlayers(result.data);
-  }
-
-  function averagePlayerStats(stats) {
-    const assists = stats.data.map((game) => game.ast);
-    const blocks = stats.data.map((game) => game.blk);
-    const points = stats.data.map((game) => game.pts);
-    return {
-      averageAssistsPerGame: calculateAverage(assists),
-      averageBlocksPerGame: calculateAverage(blocks),
-      averagePointsPerGame: calculateAverage(points),
-    };
-  }
-
-  function calculateAverage(stats) {
-    const total = stats.reduce((acc, c) => acc + c, 0);
-    return total / stats.length;
+    try {
+      const result = await fetchData(url);
+      if (result && result.data) {
+        setFilteredPlayers(result.data);
+      } else {
+        setFilteredPlayers([]);
+      }
+    } catch (error) {
+      console.log(error);
+      throw new Error('Fetch error');
+    }
   }
 
   async function getPlayerById(id) {
@@ -83,44 +86,60 @@ function App() {
   }
 
   async function handlePlayerClick(id) {
-    const url = `https://www.balldontlie.io/api/v1/stats?player_ids[]=${id}`;
-  
-    const results = await fetchData(url).then(averagePlayerStats);
-  
+    const url = `https://www.balldontlie.io/api/v1/season_averages?&player_ids[]=${id}`;
+
+    const results = await fetchData(url);
+
     let playerData = loading ? await getPlayerById(id) : allPlayers.find((player) => player.id === id);
-  
+    const seasonStats = results.data[0];
+
     setSelectedPlayer({
       ...playerData,
       stats: {
-        averageAssistsPerGame: results.averageAssistsPerGame,
-        averageBlocksPerGame: results.averageBlocksPerGame,
-        averagePointsPerGame: results.averagePointsPerGame,
+        averagePointsPerSeason: seasonStats.pts,
+        averageAssistsPerSeason: seasonStats.ast,
+        averageReboundsPerSeason: seasonStats.reb,
+        averageStealsPerSeason: seasonStats.stl,
+        averageBlocksPerSeason: seasonStats.blk,
       },
     });
+    setShowCard(true);
   }
 
   async function fetchData(url) {
-    try {
-      const response = await axios.get(url);
-      return response.data;
-    } catch (error) {
+    return await fetch(url).then(handleFetchResponse);
+  }
+
+  async function handleFetchResponse(r) {
+    if (r.ok) {
+      return await r.json();
+    } else {
       setShowAlert(true);
-      console.log(error);
+      console.log(r);
     }
   }
+
+  useEffect(() => {
+    if (filteredPlayers && filteredPlayers.length > 0) {
+      console.log('Filtered player data:', filteredPlayers);
+    } else {
+      console.log('No filtered player data');
+    }
+  }, [filteredPlayers]);
   
   return (
     <article>
       <section className="center search-form">
-        <Jumbotron>
-          <PlayerCard className="card" player={selectedPlayer}></PlayerCard>
-        </Jumbotron>
+        <div className="jumbotron">
+          {showCard && <PlayerCard className="card" player={selectedPlayer}></PlayerCard>}
+        </div>
         <SearchBar name={name} handleSubmit={handleSubmit} handleChange={handleChange}></SearchBar>
       </section>
       <section>
+        {showAlert ? <Alerts setShow={setShowAlert}></Alerts> : null}
         <PlayerTable players={filteredPlayers} handlePlayerClick={handlePlayerClick}></PlayerTable>
       </section>
     </article>
   );
-  }
+}
 export default App;

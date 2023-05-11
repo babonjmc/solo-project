@@ -1,7 +1,7 @@
 import React from 'react';
 import Table from 'react-bootstrap/Table';
 
-export default function (props) {
+const PlayerTable = (props) => {
   return (
     <Table>
       <thead>
@@ -9,6 +9,8 @@ export default function (props) {
           <th>id</th>
           <th>name</th>
           <th>team</th>
+          <th>position</th>
+          <th>conference</th>
         </tr>
       </thead>
       <tbody>
@@ -16,10 +18,14 @@ export default function (props) {
           <tr key={player.id} onClick={() => props.handlePlayerClick(player.id)}>
             <td>{player.id}</td>
             <td>{`${player.first_name} ${player.last_name}`}</td>
-            <td>{player.team.abbreviation}</td>
+            <td>{player.team.full_name}</td>
+            <td>{player.position}</td>
+            <td>{player.team.conference}</td>
           </tr>
         ))}
       </tbody>
     </Table>
   );
 }
+
+export default PlayerTable;

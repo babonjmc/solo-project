@@ -1,9 +1,11 @@
 import React from 'react';
-import { render } from 'react-dom';
+import { createRoot } from 'react-dom/client';
+const root = createRoot(document.getElementById('root'));
 // import styles from '../scss/application.scss';
-import App from './components/App';
+import App from './components/App.jsx';
+// import Test from './test.jsx';
 
 // uncomment so that webpack can bundle styles
 
-render(<App />, 
-document.getElementById('root'));
+
+root.render(<App/>);
